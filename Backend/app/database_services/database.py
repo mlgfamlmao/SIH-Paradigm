@@ -3,12 +3,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.db_user}:{settings.db_pass}@{settings.db_host}/{settings.db_name}"
+# Use SQLite for NATPAC travel data collection
+SQLALCHEMY_DATABASE_URL = settings.database_url
 
-print(SQLALCHEMY_DATABASE_URL)
+print(f"Database URL: {SQLALCHEMY_DATABASE_URL}")
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False}  # Needed for SQLite
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

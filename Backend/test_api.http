@@ -1,0 +1,50 @@
+### Test NATPAC Travel Data Collection API
+
+### Health Check
+GET http://127.0.0.1:8000/health
+
+### Register a new user
+POST http://127.0.0.1:8000/auth/register
+Content-Type: application/json
+
+{
+  "device_id": "test_device_123",
+  "age_group": "26-35",
+  "gender": "Male",
+  "household_size": 2,
+  "consent_given": true
+}
+
+### Login user
+POST http://127.0.0.1:8000/auth/login
+Content-Type: application/json
+
+"test_device_123"
+
+### Get user profile (requires token from login)
+GET http://127.0.0.1:8000/user/profile
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Create a trip (requires token)
+POST http://127.0.0.1:8000/trips
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "user_id": 1,
+  "trip_number": 1,
+  "origin_address": "123 Main St, City",
+  "destination_address": "456 Oak Ave, City",
+  "start_time": "2024-01-15T08:00:00",
+  "end_time": "2024-01-15T08:30:00",
+  "mode_of_travel": "Car",
+  "num_co_travellers": 1,
+  "is_confirmed": true
+}
+
+### Get user trips (requires token)
+GET http://127.0.0.1:8000/trips
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Export trips data (for NATPAC scientists)
+GET http://127.0.0.1:8000/export/trips.csv

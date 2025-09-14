@@ -1,41 +1,97 @@
 import 'package:flutter/material.dart';
-import 'package:todo_web/todo/infrastructure/remote_service.dart';
-import 'package:todo_web/todo/presentation/todo_page.dart';
+import 'package:provider/provider.dart';
+import 'providers/app_provider.dart';
+import 'screens/consent_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const NATPACTravelApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class NATPACTravelApp extends StatelessWidget {
+  const NATPACTravelApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Todo By Alankrit',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (context) => AppProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'NATPAC Travel Tracker',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.blue[600],
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[600],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          cardTheme: CardTheme(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        home: const AppInitializer(),
       ),
-      home: TodoPage(
-          todoRemoteService: TodoRemoteService('http://127.0.0.1:8008')),
+    );
+  }
+}
+
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({super.key});
+
+  @override
+  State<AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    final appProvider = Provider.of<AppProvider>(context, listen: false);
+    await appProvider.initialize();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AppProvider>(
+      builder: (context, appProvider, child) {
+        if (appProvider.isLoading) {
+          return const Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Initializing NATPAC Travel Tracker...'),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (appProvider.currentUser == null) {
+          return const ConsentScreen();
+        }
+
+        return const HomeScreen();
+      },
     );
   }
 }
